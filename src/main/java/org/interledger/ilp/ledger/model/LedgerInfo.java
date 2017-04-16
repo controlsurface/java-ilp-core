@@ -9,9 +9,6 @@ import java.security.PublicKey;
 
 public interface LedgerInfo {
 
-  // TODO Is this required?
-  String getId();
-
   /**
    * Returns the ILP address prefix of the Ledger.
    */
