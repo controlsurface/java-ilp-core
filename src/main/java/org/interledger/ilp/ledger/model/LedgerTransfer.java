@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Defines a transfer on the ledger.
  */
-public interface LedgerTransfer {
+public interface LedgerTransfer { // TODO:(0) 
 
   /**
    * Returns the unique id of the transfer.
@@ -34,23 +34,45 @@ public interface LedgerTransfer {
   MonetaryAmount getAmount();
 
   /**
-   * TODO:??.
-   */
-  boolean isAuthorized();
-
-  /**
-   * TODO:??.
+   * TODO:(0) Document
    */
   String getInvoice();
 
   /**
-   * TODO:??.
+   * Get the data to be sent.
+   *
+   * Ledger plugins SHOULD treat this data as opaque, however it will usually
+   * start with an ILP header followed by a transport layer header, a quote
+   * request or a custom user-provided data packet.
+   *
+   * If the data is too large, the ledger plugin MUST throw a
+   * MaximumDataSizeExceededError. If the data is too large only because the
+   * amount is insufficient, the ledger plugin MUST throw an
+   * InsufficientAmountError.
+   *
+   * @return a buffer containing the data
    */
   byte[] getData();
 
   /**
-   * TODO:??.
+   * Get the host's internal memo
+   *
+   * An optional bytestring containing details the host needs to persist with
+   * the transfer in order to be able to react to transfer events like
+   * condition fulfillment later.
+   *
+   * Ledger plugins MAY attach the noteToSelf to the transfer and let the
+   * ledger store it. Otherwise it MAY use the store in order to persist this
+   * field. Regardless of the implementation, the ledger plugin MUST ensure
+   * that all instances of the transfer carry the same noteToSelf, even across
+   * different machines.
+   *
+   * Ledger plugins MUST ensure that the data in the noteToSelf either isn't
+   * shared with any untrusted party or encrypted before it is shared.
+   *
+   * @return a buffer containing the data
    */
+
   byte[] getNoteToSelf();
 
   /**

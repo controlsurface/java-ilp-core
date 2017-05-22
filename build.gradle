@@ -29,8 +29,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':java-crypto-conditions')
-    
+    compile ('org.interledger:java-crypto-conditions:2.0.0-SNAPSHOT')
     //JSR-354 introduces better money and currency support to the JDK
     //http://javamoney.org
     compile ('javax.money:money-api:1.0.1')

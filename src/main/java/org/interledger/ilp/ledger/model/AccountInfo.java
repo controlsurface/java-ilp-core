@@ -3,13 +3,23 @@ package org.interledger.ilp.ledger.model;
 import org.interledger.ilp.InterledgerAddress;
 
 import javax.money.MonetaryAmount;
+
 import java.security.PublicKey;
 
 
 /**
  * Defines information about a given account.
  */
-public interface AccountInfo {
+/* TODO: Rename as AccountInfo -> ILPAccountInfo 
+ *      to make code easier to read, so that code like :
+ *      public class AccountInfoImpl implements LocalAccountInfo, ILPAccountInfo
+ *      
+ *      will easely be interpreted as a class implementing both LocalAccountInfo contracts
+ *      (anything in the Account not having to do with ILP) and ILPAccountInfo 
+ *      (with any extra information needed for compliance with ILP)
+ */
+
+public interface AccountInfo { 
 
   /**
    * Returns the ILP address of the ledger on which the account is held.

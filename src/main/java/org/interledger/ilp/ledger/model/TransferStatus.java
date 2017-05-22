@@ -1,6 +1,7 @@
 package org.interledger.ilp.ledger.model;
 
 public enum TransferStatus {
+  // TODO(0): FIXME PROPOSED is not part of the RFCs anymore.
   PROPOSED, PREPARED, EXECUTED, REJECTED;
 
   /**

@@ -10,7 +10,7 @@ public class InterledgerError {
    /**
     * Valid error codes that might be encountered during an Interledger payment.
     */
-   enum ErrorCode {
+   public enum ErrorCode {
      F00_BAD_REQUEST("F00", "BAD REQUEST"),
      F01_INVALID_PAQUET("F01", "INVALID PACKET"),
      F02_UNREACHABLE("F02", "UNREACHABLE"),
@@ -123,7 +123,7 @@ public class InterledgerError {
    /**
     * Constructor used by ILP Connectors.
     */
-   private InterledgerError(
+   public InterledgerError(
        final ErrorCode errorCode, 
        final InterledgerAddress triggeredBy, 
        final ZonedDateTime triggeredAt,
@@ -170,7 +170,9 @@ public class InterledgerError {
        ErrorCode errorCode,
        InterledgerAddress triggeredBy,
        String data) {
-       this(errorCode, triggeredBy,  ZonedDateTime.now(), new java.util.ArrayList<InterledgerAddress>(), TRIGGERING_ILP_NODE, "");
+       this(errorCode, triggeredBy,
+           ZonedDateTime.now(), 
+           new java.util.ArrayList<InterledgerAddress>(), TRIGGERING_ILP_NODE, data);
    }
    
    
