@@ -1,25 +1,43 @@
 group = 'org.interledger'
 description = 'Interledger Protocol Core'
-version = '0.2.0-SNAPSHOT'
+version = '0.4.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'signing'
 apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+/* 
+ custom checkstyle properties for the build.
+ see https://docs.gradle.org/current/dsl/org.gradle.api.plugins.quality.CheckstyleExtension.html
+*/
 checkstyle {
     configFile file('google_checks.xml')
     toolVersion '7.1'
     showViolations = true
+    /* 
+       by default, checkstyle warnings dont fail the build. but we want exactly that for circle-ci 
+       pass/fail reporting, so tell the plugin to break the build on the first error 
+    */
+    maxWarnings = 0
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
 }
 
 jar {
     manifest {
         attributes 'Implementation-Title': description,
-                   'Implementation-Version': version
+                'Implementation-Version': version
     }
 }
 
@@ -29,12 +47,51 @@ repositories {
 }
 
 dependencies {
-    compile ('org.interledger:java-crypto-conditions:2.0.0-SNAPSHOT')
-    //JSR-354 introduces better money and currency support to the JDK
-    //http://javamoney.org
-    compile ('javax.money:money-api:1.0.1')
+    compile project(':java-crypto-conditions')
 
-    testCompile("junit:junit:4.12")
+    //JSR-354 (http://javamoney.org): Better money and currency support in the JDK
+    compile('javax.money:money-api:1.0.1')
+    compile('com.google.guava:guava:21.0')
+    
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.7.22'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'com.google.guava:guava:21.0'
+}
+
+signing {
+    sign configurations.archives
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+        }
+    }
 }
 
 //Maven compatibility task:
@@ -42,14 +99,20 @@ task writePom {
     doLast {
         pom {
             project {
-                inceptionYear '2016'    
+                name 'ILP Core (Java)'
+                packaging 'jar'
+                description 'Core libraries for implementing software that uses the Interledger suite of protocols.'
+                url 'http://github.com/interledger/java-ilp-core'
+
+                inceptionYear '2016'
+
                 properties {
                     "project.build.sourceEncoding" "UTF-8"
                     "maven.compiler.source" "1.8"
                     "maven.compiler.target" "1.8"
                     "checkstyle.config.location" "google_checks.xml"
                     "checkstyle.consoleOutput" "true"
-                }            
+                }
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -57,13 +120,36 @@ task writePom {
                         distribution 'repo'
                     }
                 }
-                reporting  {
+                developers {
+                    developer {
+                        name 'Adrian Hope-Bailie'
+                        organizationUrl 'https://github.com/adrianhopebailie'
+                    }
+                    developer {
+                        name 'Andrew Gates'
+                        organizationUrl 'https://github.com/andrew-g-za'
+                    }
+                    developer {
+                        name 'Enrique Benito'
+                        organizationUrl 'https://github.com/earizon'
+                    }
+                    developer {
+                        name 'David Fuelling'
+                        organizationUrl 'https://github.com/sappenin'
+                    }
+                }
+                scm {
+                    connection 'scm:git:git://github.com/interledger/java-ilp-core.git'
+                    developerConnection 'scm:git:git@github.com:interledger/java-ilp-core.git'
+                    url 'https://github.com/sappenin/objectify-utils'
+                }
+                reporting {
                     plugins {
                         plugin {
                             groupId "org.apache.maven.plugins"
                             artifactId "maven-checkstyle-plugin"
                             version "2.17"
-                        }                   
+                        }
                     }
                 }
             }
